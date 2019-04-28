@@ -10,4 +10,4 @@ let
         };
     in import "${drv}";
 
-in ex (builtins.toFile "foo" "{}")
+in import (ex (builtins.toFile "bar" "{}"))
