@@ -5,21 +5,20 @@ Strange bug in the nix evaluator:
 [$ default.nix](./default.nix)
 ```
 let
-  pkgs = import <nixpkgs> {};
-
   ex = nix-file-path:
-    let drv = pkgs.stdenv.mkDerivation {
+    let drv = derivation {
           name = "not-evaluated";
-          buildCommand = ''
+          system = builtins.currentSystem;
+          builder = "/bin/sh";
+          args = [ "-c" ''
             echo ${nix-file-path} > $out
-          '';
+          '' ];
         };
     in import "${drv}";
 
 in ex (builtins.toFile "foo" "{}")
-
 ```
 `$ nix-instantiate --eval ./default.nix 2>&1`
 ```
-error: cannot import '/nix/store/ncj07425nhhbsy03vnrhqkyvyd3r4wnb-not-evaluated', since path '/nix/store/a9qkmlxsjq4wvk7bvmrw9y6m1p7rmlik-not-evaluated.drv' is not valid, at /home/philip/kot/repros/nix-evaluation-missing-drv/default.nix:11:8
+error: cannot import '/nix/store/7vcbfpp144hs719844l59109bbkyn0wd-not-evaluated', since path '/nix/store/0czlwgaqvqa7d54v9258m41r3l4ldjfw-not-evaluated.drv' is not valid, at /home/philip/kot/repros/nix-evaluation-missing-drv/default.nix:11:8
 ```

@@ -1,12 +1,12 @@
 let
-  pkgs = import <nixpkgs> {};
-
   ex = nix-file-path:
-    let drv = pkgs.stdenv.mkDerivation {
+    let drv = derivation {
           name = "not-evaluated";
-          buildCommand = ''
+          system = builtins.currentSystem;
+          builder = "/bin/sh";
+          args = [ "-c" ''
             echo ${nix-file-path} > $out
-          '';
+          '' ];
         };
     in import "${drv}";
 
